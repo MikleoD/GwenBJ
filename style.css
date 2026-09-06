@@ -36,24 +36,47 @@ body {
     margin: 0.5em;
 }
 
-@media all and (orientation: landscape) {
-    #live2d_canvas {
-        display: block;
-        margin: auto;
-        width: 90%;
-        height: 90%;
-        box-sizing: border-box;
-    }
+#viewer_frame {
+    position: relative;
+    margin: auto;
+    width: 90%;
+    height: 90%;
+    overflow: hidden;
+    background: black;
+    box-sizing: border-box;
 }
 
-@media all and (orientation: portrait) {
-    #live2d_canvas {
-        display: block;
-        margin: auto;
-        width: 90%;
-        height: 90%;
-        box-sizing: border-box;
+#live2d_canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0.2rem dotted lightcoral;
+    box-sizing: border-box;
+}
+
+
+@media all and (orientation: landscape) {
+
+    .right_panel {
+        float: right;
+        margin: 1em 1em 1em 0;
+        width: calc(25% - 1.5em);
+        height: calc(100% - 2em);
     }
+
+    ...
+}
+
+
+@media all and (orientation: portrait) {
+
+    .right_panel {
+        margin: 0 1em 1em 1em;
+        width: calc(100% - 2em);
+        height: calc(25% - 1.5em);
+    }
+
+    ...
 }
 
     #console {
