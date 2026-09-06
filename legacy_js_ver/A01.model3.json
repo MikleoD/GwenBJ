@@ -3,10 +3,10 @@
 	"FileReferences": {
 		"Moc": "A02.moc3",
 		"Textures": [
-			"A02.1024/texture_00.png"
+			"texture.png"
 		],
-		"Physics": "A02.physics3.json",
-		"DisplayInfo": "A02.cdi3.json"
+		"Physics": "C02.physics3.json",
+		"DisplayInfo": "C01.cdi3.json"
 	},
 	"Groups": [
 		{
