@@ -1,6 +1,9 @@
 """
 Modified:
 - Expose Pixi app through L2DNameSpace for external control
+- Separate original canvas size from visible viewer frame
+- Keep Live2D model centered inside the original canvas
+- Viewer frame acts only as a clipping window
 """
 
 from browser import document, window, timer, bind
@@ -8,11 +11,58 @@ from typing import Mapping, Callable
 from bake_logger import logger
 
 
-MODEL_SCALE_OFFSET = 0.85
+# ============================================================
+# CONFIGURATION
+# ============================================================
 
+# Taille originale du canvas du fanart dans Live2D
+ORIGINAL_WIDTH = 2000
+ORIGINAL_HEIGHT = 1775
+
+# Taille de la partie que l'on veut voir dans le viewer
+VIEW_WIDTH = 917
+VIEW_HEIGHT = 788
+
+
+# ============================================================
+# ELEMENTS HTML
+# ============================================================
 
 canvas_div = document["live2d_canvas"]
+viewer_frame = document["viewer_frame"]
 
+
+# ============================================================
+# CONFIGURATION DU CANVAS
+# ============================================================
+
+# Le canvas conserve la taille originale du fanart.
+#
+# Le cadre visible sera plus petit et servira simplement
+# de fenêtre de découpe.
+
+canvas_div.style.width = f"{ORIGINAL_WIDTH}px"
+canvas_div.style.height = f"{ORIGINAL_HEIGHT}px"
+
+viewer_frame.style.width = f"{VIEW_WIDTH}px"
+viewer_frame.style.height = f"{VIEW_HEIGHT}px"
+
+
+# Le canvas est placé au centre du cadre.
+#
+# Comme le canvas est plus grand que le cadre, une partie
+# du canvas dépasse de chaque côté et est masquée par
+# overflow:hidden.
+
+canvas_div.style.position = "absolute"
+
+canvas_div.style.left = f"{(VIEW_WIDTH - ORIGINAL_WIDTH) / 2}px"
+canvas_div.style.top = f"{(VIEW_HEIGHT - ORIGINAL_HEIGHT) / 2}px"
+
+
+# ============================================================
+# PIXI
+# ============================================================
 
 pixi = window.PIXI
 
@@ -28,6 +78,10 @@ app = pixi.Application.new({
 })
 
 
+# ============================================================
+# LIVE2D NAMESPACE
+# ============================================================
+
 class L2DNameSpace:
     """
     Namespace for debugging
@@ -38,18 +92,20 @@ class L2DNameSpace:
     last_hit_areas = None
     canvas_div = None
 
-    # NEW
-    # expose Pixi application
+    # Expose Pixi application
     app = None
 
 
 window.L2DNameSpace = L2DNameSpace
 
-# NEW
-# make Pixi app accessible from javascript
+
+# Make Pixi app accessible from JavaScript
 L2DNameSpace.app = app
 
 
+# ============================================================
+# LOAD LIVE2D
+# ============================================================
 
 def load_live2d(json_or_url: Mapping | str, callback: Callable):
 
@@ -61,7 +117,6 @@ def load_live2d(json_or_url: Mapping | str, callback: Callable):
 
 
     L2DNameSpace.last_source = json_or_url
-
 
 
     if L2DNameSpace.current_model is not None:
@@ -83,7 +138,6 @@ def load_live2d(json_or_url: Mapping | str, callback: Callable):
             logger.info("Unloaded previous model")
 
 
-
     logger.info("Loading new model")
 
 
@@ -96,6 +150,9 @@ def load_live2d(json_or_url: Mapping | str, callback: Callable):
     )
 
 
+# ============================================================
+# MODEL LOAD CALLBACK
+# ============================================================
 
 def model_load_callback(model, callback):
 
@@ -124,6 +181,9 @@ def model_load_callback(model, callback):
         callback()
 
 
+# ============================================================
+# RESIZE / CENTERING
+# ============================================================
 
 def resize(model=None):
 
@@ -137,42 +197,36 @@ def resize(model=None):
         return
 
 
+    # IMPORTANT :
+    # Le modèle est maintenant dimensionné par rapport
+    # au canvas ORIGINAL, et non par rapport au cadre visible.
 
-    canvas_width = canvas_div.clientWidth
-
-    canvas_height = canvas_div.clientHeight
-
+    canvas_width = ORIGINAL_WIDTH
+    canvas_height = ORIGINAL_HEIGHT
 
 
     model_width = model.width
-
     model_height = model.height
 
 
-
     scale_x = canvas_width / model_width
-
     scale_y = canvas_height / model_height
 
 
     scale = min(scale_x, scale_y)
 
 
-
     model.scale.set(scale)
 
 
-
     scaled_width = model.width
-
     scaled_height = model.height
 
 
+    # Centrage dans le canvas original
 
     model.x = (canvas_width - scaled_width) / 2
-
     model.y = (canvas_height - scaled_height) / 2
-
 
 
     logger.info(
@@ -180,6 +234,9 @@ def resize(model=None):
     )
 
 
+# ============================================================
+# HIT CALLBACK
+# ============================================================
 
 def model_hit_callback_closure(model):
 
@@ -222,6 +279,9 @@ def model_hit_callback_closure(model):
     return model_hit_callback
 
 
+# ============================================================
+# WINDOW RESIZE
+# ============================================================
 
 def on_window_resize():
 
@@ -234,6 +294,9 @@ def on_window_resize():
     resize()
 
 
+# ============================================================
+# RESIZE TIMER
+# ============================================================
 
 class ResizeTimer:
 
@@ -256,6 +319,9 @@ class ResizeTimer:
         )
 
 
+# ============================================================
+# BROWSER RESIZE
+# ============================================================
 
 @bind(window, "resize")
 def on_resize(*_):
