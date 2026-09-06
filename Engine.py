@@ -155,7 +155,7 @@ def resize(model=None):
     scale_y = canvas_height / model_height
 
 
-    scale = min(scale_x, scale_y) * 0.90
+    scale = min(scale_x, scale_y)
 
 
 
