@@ -1,12 +1,12 @@
 {
 	"Version": 3,
 	"FileReferences": {
-		"Moc": "GwenLive2d.moc3",
+		"Moc": "A02.moc3",
 		"Textures": [
-			"GwenLive2d.2048/texture_00.png"
+			"texture.png"
 		],
-		"Physics": "GwenLive2d.physics3.json",
-		"DisplayInfo": "GwenLive2d.cdi3.json"
+		"Physics": "C02.physics3.json",
+		"DisplayInfo": "C01.cdi3.json"
 	},
 	"Groups": [
 		{
