@@ -19,8 +19,8 @@ body {
 #viewer_frame {
     position: relative;
     margin: auto;
-    width: fit-content;
-    height: fit-content;
+    width: 837px;
+    height: 727px;
     overflow: hidden;
     background: transparent;
     box-sizing: border-box;
