@@ -16,7 +16,20 @@ body {
     background: black;
 }
 
+#viewer_frame {
+    position: relative;
+    margin: auto;
+    width: 837px;
+    height: 727px;
+    overflow: hidden;
+    background: black;
+    box-sizing: border-box;
+}
+
 #live2d_canvas {
+    display: block;
+    width: 837px;
+    height: 727px;
     border: 0.2rem dotted lightcoral;
     box-sizing: border-box;
 }
@@ -34,24 +47,6 @@ body {
 #header {
     text-align: center;
     margin: 0.5em;
-}
-
-#viewer_frame {
-    position: relative;
-    margin: auto;
-    width: 917px;
-    height: 788px;
-    overflow: hidden;
-    background: black;
-    box-sizing: border-box;
-}
-
-#live2d_canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: 0.2rem dotted lightcoral;
-    box-sizing: border-box;
 }
 
 
@@ -79,16 +74,16 @@ body {
     ...
 }
 
-    #console {
-        margin: 0.5em 5em 0.5em 5em;
-        height: calc(100% - 9em);
-        overflow-y: scroll;
-    }
 
-    #header {
-        height: 1.5em;
-        font-size: 1.5em;
-    }
+#console {
+    margin: 0.5em 5em 0.5em 5em;
+    height: calc(100% - 9em);
+    overflow-y: scroll;
+}
+
+#header {
+    height: 1.5em;
+    font-size: 1.5em;
 }
 
 #InputField {
@@ -96,7 +91,7 @@ body {
 }
 
 #InputButton {
-    width: 5em
+    width: 5em;
 }
 
 p {
