@@ -10,7 +10,7 @@ from bake_logger import logger
 from Engine import load_live2d, L2DNameSpace
 
 
-LAPIS_MODEL_URL = r"https://mikleod.github.io/LaLaBB/legacy_js_ver/A01.model3.json"
+LAPIS_MODEL_URL = r"https://mikleod.github.io/GwenBJ/legacy_js_ver/A01.model3.json"
 
 
 @bind(document["input_btn"], "click")
