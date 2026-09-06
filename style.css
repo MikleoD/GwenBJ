@@ -39,8 +39,8 @@ body {
 #viewer_frame {
     position: relative;
     margin: auto;
-    width: 90%;
-    height: 90%;
+    width: 837px;
+    height: 727px;
     overflow: hidden;
     background: black;
     box-sizing: border-box;
