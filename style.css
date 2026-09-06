@@ -19,8 +19,8 @@ body {
 #viewer_frame {
     position: relative;
     margin: auto;
-    width: 917px;
-    height: 788px;
+    width: 837px;
+    height: 727px;
     overflow: hidden;
     background: transparent;
     box-sizing: border-box;
@@ -28,6 +28,8 @@ body {
 
 #live2d_canvas {
     display: block;
+    width: 917px;
+    height: 788px;
     border: 0.2rem dotted lightcoral;
     box-sizing: border-box;
 }
