@@ -53,10 +53,10 @@ FRAME_HEIGHT = 788
 # masque 20 pixels supplémentaires à gauche et à droite.
 #
 
-CROP_LEFT = 30
-CROP_RIGHT = 30
-CROP_TOP = 30
-CROP_BOTTOM = 30
+CROP_LEFT = 500
+CROP_RIGHT = 500
+CROP_TOP = 500
+CROP_BOTTOM = 500
 
 
 # ============================================================
