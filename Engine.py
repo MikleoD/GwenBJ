@@ -1,7 +1,8 @@
 """
 Modified:
 - Expose Pixi app through L2DNameSpace for external control
-- Separate model scaling from visible viewer frame
+- Separate model area, visible area and dotted frame
+- Keep model centered
 """
 
 from browser import document, window, timer, bind
@@ -13,22 +14,30 @@ from bake_logger import logger
 # CONFIGURATION
 # ============================================================
 
-# Taille de référence utilisée pour calculer le zoom du modèle.
-#
-# IMPORTANT :
-# Ces valeurs correspondent à la taille qui donnait actuellement
-# le bon zoom dans ton viewer.
-#
-# Elles ne correspondent PAS à la taille du cadre visible.
-MODEL_AREA_WIDTH = 917
-MODEL_AREA_HEIGHT = 788
+# Taille originale du canvas Live2D
+ORIGINAL_WIDTH = 2000
+ORIGINAL_HEIGHT = 1775
 
 
-# Taille de la fenêtre réellement visible.
-#
-# Le contenu qui dépasse cette zone sera simplement coupé.
+# Zone du canvas que l'on souhaite réellement afficher
 VIEW_WIDTH = 837
 VIEW_HEIGHT = 727
+
+
+# Taille du cadre pointillé
+FRAME_WIDTH = 917
+FRAME_HEIGHT = 788
+
+
+# Taille utilisée actuellement pour calculer le zoom du modèle.
+#
+# Ces valeurs correspondent à ton ancien viewer qui donnait
+# une taille correcte au modèle.
+#
+# IMPORTANT :
+# Ne pas remplacer ces valeurs par ORIGINAL_WIDTH / HEIGHT.
+MODEL_AREA_WIDTH = 917
+MODEL_AREA_HEIGHT = 788
 
 
 # ============================================================
@@ -40,14 +49,14 @@ viewer_frame = document["viewer_frame"]
 
 
 # ============================================================
-# CONFIGURATION DU CADRE
+# CADRE
 # ============================================================
 
-viewer_frame.style.width = f"{VIEW_WIDTH}px"
-viewer_frame.style.height = f"{VIEW_HEIGHT}px"
-
 viewer_frame.style.position = "relative"
+viewer_frame.style.width = f"{FRAME_WIDTH}px"
+viewer_frame.style.height = f"{FRAME_HEIGHT}px"
 viewer_frame.style.overflow = "hidden"
+viewer_frame.style.boxSizing = "border-box"
 
 
 # ============================================================
@@ -55,6 +64,7 @@ viewer_frame.style.overflow = "hidden"
 # ============================================================
 
 pixi = window.PIXI
+
 
 pixi.settings.RESOLUTION = window.devicePixelRatio
 
@@ -86,6 +96,7 @@ class L2DNameSpace:
 
 
 window.L2DNameSpace = L2DNameSpace
+
 
 # Make Pixi app accessible from JavaScript
 L2DNameSpace.app = app
@@ -188,13 +199,11 @@ def resize(model=None):
     # --------------------------------------------------------
     # IMPORTANT
     #
-    # On NE regarde plus la taille du canvas HTML ici.
+    # Le zoom du modèle reste basé sur la même zone de
+    # référence qu'avant.
     #
-    # Le zoom du modèle est toujours calculé avec :
-    #
-    #     917 × 788
-    #
-    # comme dans ton ancienne version fonctionnelle.
+    # La taille du cadre et la zone visible ne modifient
+    # donc pas le zoom.
     # --------------------------------------------------------
 
     canvas_width = MODEL_AREA_WIDTH
@@ -220,7 +229,7 @@ def resize(model=None):
 
 
     # --------------------------------------------------------
-    # Centrage du modèle dans la zone de référence 917 × 788
+    # Centrage du modèle
     # --------------------------------------------------------
 
     model.x = (canvas_width - scaled_width) / 2
