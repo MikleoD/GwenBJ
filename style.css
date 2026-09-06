@@ -19,10 +19,10 @@ body {
 #viewer_frame {
     position: relative;
     margin: auto;
-    width: 837px;
-    height: 727px;
+    width: fit-content;
+    height: fit-content;
     overflow: hidden;
-    background: black;
+    background: transparent;
     box-sizing: border-box;
 }
 
