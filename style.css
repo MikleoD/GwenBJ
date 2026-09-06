@@ -16,23 +16,71 @@ body {
     background: black;
 }
 
+
+/*
+    ============================================================
+    FENÊTRE VISIBLE
+    ============================================================
+
+    C'est CETTE taille que tu modifieras pour choisir
+    la portion du fanart qui doit être visible.
+
+    Le fanart lui-même ne sera pas redimensionné
+    lorsque ces valeurs changent.
+*/
+
 #viewer_frame {
     position: relative;
     margin: auto;
-    width: 917px !important;
-    height: 788px !important;
+
+    width: 917px;
+    height: 788px;
+
     overflow: hidden;
+
     background: transparent;
+
+    border: 0.2rem dotted lightcoral;
+
     box-sizing: border-box;
 }
 
+
+/*
+    ============================================================
+    CANVAS LIVE2D
+    ============================================================
+
+    Cette taille contrôle la surface utilisée par Live2D.
+    Elle reste volontairement plus grande que la fenêtre.
+
+    NE PAS mettre ici les dimensions du cadre visible.
+*/
+
 #live2d_canvas {
+    position: absolute;
+
+    width: 917px;
+    height: 788px;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
     display: block;
-    width: 917px !important;
-    height: 788px !important;
-    border: 0.2rem dotted lightcoral;
+
+    border: none;
+
     box-sizing: border-box;
 }
+
+
+/*
+    ============================================================
+    AUTRES ÉLÉMENTS
+    ============================================================
+*/
 
 .right_panel {
     background: darkgrey;
@@ -50,6 +98,12 @@ body {
 }
 
 
+/*
+    ============================================================
+    ORIENTATION PAYSAGE
+    ============================================================
+*/
+
 @media all and (orientation: landscape) {
 
     .right_panel {
@@ -58,10 +112,14 @@ body {
         width: calc(25% - 1.5em);
         height: calc(100% - 2em);
     }
-
-    ...
 }
 
+
+/*
+    ============================================================
+    ORIENTATION PORTRAIT
+    ============================================================
+*/
 
 @media all and (orientation: portrait) {
 
@@ -70,10 +128,14 @@ body {
         width: calc(100% - 2em);
         height: calc(25% - 1.5em);
     }
-
-    ...
 }
 
+
+/*
+    ============================================================
+    CONSOLE / INTERFACE
+    ============================================================
+*/
 
 #console {
     margin: 0.5em 5em 0.5em 5em;
