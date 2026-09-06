@@ -1,9 +1,7 @@
 """
 Modified:
 - Expose Pixi app through L2DNameSpace for external control
-- Separate original canvas size from visible viewer frame
-- Keep Live2D model centered inside the original canvas
-- Viewer frame acts only as a clipping window
+- Separate model scaling from visible viewer frame
 """
 
 from browser import document, window, timer, bind
@@ -15,13 +13,22 @@ from bake_logger import logger
 # CONFIGURATION
 # ============================================================
 
-# Taille originale du canvas du fanart dans Live2D
-ORIGINAL_WIDTH = 2000
-ORIGINAL_HEIGHT = 1775
+# Taille de référence utilisée pour calculer le zoom du modèle.
+#
+# IMPORTANT :
+# Ces valeurs correspondent à la taille qui donnait actuellement
+# le bon zoom dans ton viewer.
+#
+# Elles ne correspondent PAS à la taille du cadre visible.
+MODEL_AREA_WIDTH = 917
+MODEL_AREA_HEIGHT = 788
 
-# Taille de la partie que l'on veut voir dans le viewer
-VIEW_WIDTH = 917
-VIEW_HEIGHT = 788
+
+# Taille de la fenêtre réellement visible.
+#
+# Le contenu qui dépasse cette zone sera simplement coupé.
+VIEW_WIDTH = 837
+VIEW_HEIGHT = 727
 
 
 # ============================================================
@@ -33,31 +40,14 @@ viewer_frame = document["viewer_frame"]
 
 
 # ============================================================
-# CONFIGURATION DU CANVAS
+# CONFIGURATION DU CADRE
 # ============================================================
-
-# Le canvas conserve la taille originale du fanart.
-#
-# Le cadre visible sera plus petit et servira simplement
-# de fenêtre de découpe.
-
-canvas_div.style.width = f"{ORIGINAL_WIDTH}px"
-canvas_div.style.height = f"{ORIGINAL_HEIGHT}px"
 
 viewer_frame.style.width = f"{VIEW_WIDTH}px"
 viewer_frame.style.height = f"{VIEW_HEIGHT}px"
 
-
-# Le canvas est placé au centre du cadre.
-#
-# Comme le canvas est plus grand que le cadre, une partie
-# du canvas dépasse de chaque côté et est masquée par
-# overflow:hidden.
-
-canvas_div.style.position = "absolute"
-
-canvas_div.style.left = f"{(VIEW_WIDTH - ORIGINAL_WIDTH) / 2}px"
-canvas_div.style.top = f"{(VIEW_HEIGHT - ORIGINAL_HEIGHT) / 2}px"
+viewer_frame.style.position = "relative"
+viewer_frame.style.overflow = "hidden"
 
 
 # ============================================================
@@ -65,7 +55,6 @@ canvas_div.style.top = f"{(VIEW_HEIGHT - ORIGINAL_HEIGHT) / 2}px"
 # ============================================================
 
 pixi = window.PIXI
-
 
 pixi.settings.RESOLUTION = window.devicePixelRatio
 
@@ -97,7 +86,6 @@ class L2DNameSpace:
 
 
 window.L2DNameSpace = L2DNameSpace
-
 
 # Make Pixi app accessible from JavaScript
 L2DNameSpace.app = app
@@ -182,7 +170,7 @@ def model_load_callback(model, callback):
 
 
 # ============================================================
-# RESIZE / CENTERING
+# RESIZE / MODEL SCALE
 # ============================================================
 
 def resize(model=None):
@@ -197,12 +185,20 @@ def resize(model=None):
         return
 
 
-    # IMPORTANT :
-    # Le modèle est maintenant dimensionné par rapport
-    # au canvas ORIGINAL, et non par rapport au cadre visible.
+    # --------------------------------------------------------
+    # IMPORTANT
+    #
+    # On NE regarde plus la taille du canvas HTML ici.
+    #
+    # Le zoom du modèle est toujours calculé avec :
+    #
+    #     917 × 788
+    #
+    # comme dans ton ancienne version fonctionnelle.
+    # --------------------------------------------------------
 
-    canvas_width = ORIGINAL_WIDTH
-    canvas_height = ORIGINAL_HEIGHT
+    canvas_width = MODEL_AREA_WIDTH
+    canvas_height = MODEL_AREA_HEIGHT
 
 
     model_width = model.width
@@ -223,7 +219,9 @@ def resize(model=None):
     scaled_height = model.height
 
 
-    # Centrage dans le canvas original
+    # --------------------------------------------------------
+    # Centrage du modèle dans la zone de référence 917 × 788
+    # --------------------------------------------------------
 
     model.x = (canvas_width - scaled_width) / 2
     model.y = (canvas_height - scaled_height) / 2
