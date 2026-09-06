@@ -1,0 +1,23 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "GwenLive2d.moc3",
+		"Textures": [
+			"GwenLive2d.2048/texture_00.png"
+		],
+		"Physics": "GwenLive2d.physics3.json",
+		"DisplayInfo": "GwenLive2d.cdi3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}
