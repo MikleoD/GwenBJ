@@ -16,65 +16,21 @@ body {
     background: black;
 }
 
-
-/*
-    ============================================================
-    FENÊTRE VISIBLE
-    ============================================================
-
-    C'est CETTE taille que tu modifieras pour choisir
-    la portion du fanart qui doit être visible.
-
-    Le fanart lui-même ne sera pas redimensionné
-    lorsque ces valeurs changent.
-*/
-
 #viewer_frame {
     position: relative;
     margin: auto;
-
     width: 917px;
     height: 788px;
-
     overflow: hidden;
-
     background: transparent;
-
-    border: 0.2rem dotted lightcoral;
-
     box-sizing: border-box;
 }
-
-
-/*
-    ============================================================
-    CANVAS LIVE2D
-    ============================================================
-
-    Cette taille contrôle la surface utilisée par Live2D.
-    Elle reste volontairement plus grande que la fenêtre.
-
-    NE PAS mettre ici les dimensions du cadre visible.
-*/
 
 #live2d_canvas {
-    position: absolute;
-
-    width: 2000px;
-    height: 1775px;
-
-    left: 50%;
-    top: 50%;
-
-    transform: translate(-50%, -50%);
-
     display: block;
-
-    border: none;
-
+    border: 0.2rem dotted lightcoral;
     box-sizing: border-box;
 }
-
 
 /*
     ============================================================
