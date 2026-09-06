@@ -1,8 +1,8 @@
 """
 Modified:
 - Expose Pixi app through L2DNameSpace for external control
-- Separate model area, visible area and dotted frame
-- Keep model centered
+- Separate model scaling from visible viewer frame
+- Add independent crop controls
 """
 
 from browser import document, window, timer, bind
@@ -14,30 +14,49 @@ from bake_logger import logger
 # CONFIGURATION
 # ============================================================
 
-# Taille originale du canvas Live2D
-ORIGINAL_WIDTH = 2000
-ORIGINAL_HEIGHT = 1775
+# ------------------------------------------------------------
+# TAILLE UTILISEE POUR LE ZOOM DU MODELE
+# ------------------------------------------------------------
+#
+# IMPORTANT :
+# Ne pas modifier ces valeurs pour régler le crop.
+# Elles donnent actuellement la bonne taille au modèle.
+#
+
+MODEL_AREA_WIDTH = 917
+MODEL_AREA_HEIGHT = 788
 
 
-# Zone du canvas que l'on souhaite réellement afficher
-VIEW_WIDTH = 300
-VIEW_HEIGHT = 500
+# ------------------------------------------------------------
+# TAILLE DU CADRE POINTILLE
+# ------------------------------------------------------------
 
-
-# Taille du cadre pointillé
 FRAME_WIDTH = 917
 FRAME_HEIGHT = 788
 
 
-# Taille utilisée actuellement pour calculer le zoom du modèle.
+# ------------------------------------------------------------
+# CROP DU CONTENU
+# ------------------------------------------------------------
 #
-# Ces valeurs correspondent à ton ancien viewer qui donnait
-# une taille correcte au modèle.
+# Ces valeurs permettent de masquer une partie du contenu
+# à l'intérieur du cadre.
 #
-# IMPORTANT :
-# Ne pas remplacer ces valeurs par ORIGINAL_WIDTH / HEIGHT.
-MODEL_AREA_WIDTH = 917
-MODEL_AREA_HEIGHT = 788
+# Augmenter LEFT et RIGHT réduit la largeur visible.
+# Augmenter TOP et BOTTOM réduit la hauteur visible.
+#
+# Exemple :
+#
+# CROP_LEFT = 20
+# CROP_RIGHT = 20
+#
+# masque 20 pixels supplémentaires à gauche et à droite.
+#
+
+CROP_LEFT = 30
+CROP_RIGHT = 30
+CROP_TOP = 30
+CROP_BOTTOM = 30
 
 
 # ============================================================
@@ -49,12 +68,13 @@ viewer_frame = document["viewer_frame"]
 
 
 # ============================================================
-# CADRE
+# CONFIGURATION DU CADRE
 # ============================================================
 
 viewer_frame.style.position = "relative"
 viewer_frame.style.width = f"{FRAME_WIDTH}px"
 viewer_frame.style.height = f"{FRAME_HEIGHT}px"
+
 viewer_frame.style.overflow = "hidden"
 viewer_frame.style.boxSizing = "border-box"
 
@@ -64,7 +84,6 @@ viewer_frame.style.boxSizing = "border-box"
 # ============================================================
 
 pixi = window.PIXI
-
 
 pixi.settings.RESOLUTION = window.devicePixelRatio
 
@@ -97,9 +116,61 @@ class L2DNameSpace:
 
 window.L2DNameSpace = L2DNameSpace
 
-
 # Make Pixi app accessible from JavaScript
 L2DNameSpace.app = app
+
+
+# ============================================================
+# POSITIONNEMENT DU CANVAS
+# ============================================================
+
+def update_canvas_position():
+
+    # --------------------------------------------------------
+    # Le canvas reste de la taille du modèle.
+    #
+    # Le crop est obtenu en décalant le canvas derrière
+    # le cadre visible.
+    # --------------------------------------------------------
+
+    crop_width = CROP_LEFT + CROP_RIGHT
+    crop_height = CROP_TOP + CROP_BOTTOM
+
+
+    visible_width = FRAME_WIDTH - crop_width
+    visible_height = FRAME_HEIGHT - crop_height
+
+
+    if visible_width <= 0:
+        visible_width = 1
+
+    if visible_height <= 0:
+        visible_height = 1
+
+
+    # --------------------------------------------------------
+    # Décalage permettant de conserver le contenu centré.
+    # --------------------------------------------------------
+
+    offset_x = (FRAME_WIDTH - MODEL_AREA_WIDTH) / 2
+
+    offset_y = (FRAME_HEIGHT - MODEL_AREA_HEIGHT) / 2
+
+
+    # Le crop est appliqué symétriquement autour du centre.
+
+    offset_x -= CROP_LEFT - CROP_RIGHT
+    offset_y -= CROP_TOP - CROP_BOTTOM
+
+
+    canvas_div.style.position = "absolute"
+
+    canvas_div.style.left = f"{offset_x}px"
+    canvas_div.style.top = f"{offset_y}px"
+
+
+# Appliquer immédiatement le positionnement
+update_canvas_position()
 
 
 # ============================================================
@@ -197,13 +268,12 @@ def resize(model=None):
 
 
     # --------------------------------------------------------
-    # IMPORTANT
+    # IMPORTANT :
     #
-    # Le zoom du modèle reste basé sur la même zone de
-    # référence qu'avant.
+    # Le zoom du modèle reste exactement basé sur
+    # MODEL_AREA_WIDTH / MODEL_AREA_HEIGHT.
     #
-    # La taille du cadre et la zone visible ne modifient
-    # donc pas le zoom.
+    # Le crop n'intervient absolument pas ici.
     # --------------------------------------------------------
 
     canvas_width = MODEL_AREA_WIDTH
@@ -229,7 +299,7 @@ def resize(model=None):
 
 
     # --------------------------------------------------------
-    # Centrage du modèle
+    # Centrage du modèle dans la zone de référence
     # --------------------------------------------------------
 
     model.x = (canvas_width - scaled_width) / 2
@@ -297,6 +367,8 @@ def on_window_resize():
 
     app.resizeTo = canvas_div
 
+
+    update_canvas_position()
 
     resize()
 
