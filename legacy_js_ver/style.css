@@ -13,6 +13,7 @@ body {
     height: 100%;
     margin: 0;
     overflow: hidden;
+    background: black;
 }
 
 #live2d_canvas {
@@ -65,7 +66,6 @@ body {
         font-size: 1em;
     }
 }
-
 
 @media all and (orientation: portrait){
     #live2d_canvas {
