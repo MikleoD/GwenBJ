@@ -20,8 +20,8 @@ ORIGINAL_HEIGHT = 1775
 
 
 # Zone du canvas que l'on souhaite réellement afficher
-VIEW_WIDTH = 917
-VIEW_HEIGHT = 788
+VIEW_WIDTH = 300
+VIEW_HEIGHT = 500
 
 
 # Taille du cadre pointillé
