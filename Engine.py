@@ -1,8 +1,7 @@
 """
 Modified:
 - Expose Pixi app through L2DNameSpace for external control
-- Separate model scaling from visible viewer frame
-- Add independent crop controls
+- Responsive model scaling for mobile
 """
 
 from browser import document, window, timer, bind
@@ -14,49 +13,14 @@ from bake_logger import logger
 # CONFIGURATION
 # ============================================================
 
-# ------------------------------------------------------------
-# TAILLE UTILISEE POUR LE ZOOM DU MODELE
-# ------------------------------------------------------------
-#
-# IMPORTANT :
-# Ne pas modifier ces valeurs pour régler le crop.
-# Elles donnent actuellement la bonne taille au modèle.
-#
-
+# Taille de référence sur PC
 MODEL_AREA_WIDTH = 917
 MODEL_AREA_HEIGHT = 788
 
 
-# ------------------------------------------------------------
-# TAILLE DU CADRE POINTILLE
-# ------------------------------------------------------------
-
+# Taille du cadre de référence
 FRAME_WIDTH = 917
 FRAME_HEIGHT = 788
-
-
-# ------------------------------------------------------------
-# CROP DU CONTENU
-# ------------------------------------------------------------
-#
-# Ces valeurs permettent de masquer une partie du contenu
-# à l'intérieur du cadre.
-#
-# Augmenter LEFT et RIGHT réduit la largeur visible.
-# Augmenter TOP et BOTTOM réduit la hauteur visible.
-#
-# Exemple :
-#
-# CROP_LEFT = 20
-# CROP_RIGHT = 20
-#
-# masque 20 pixels supplémentaires à gauche et à droite.
-#
-
-CROP_LEFT = 500
-CROP_RIGHT = 500
-CROP_TOP = 500
-CROP_BOTTOM = 500
 
 
 # ============================================================
@@ -70,11 +34,12 @@ viewer_frame = document["viewer_frame"]
 # ============================================================
 # CONFIGURATION DU CADRE
 # ============================================================
+#
+# La taille est maintenant gérée par le CSS.
+# Cela permet au cadre de s'adapter aux téléphones.
+#
 
 viewer_frame.style.position = "relative"
-viewer_frame.style.width = f"{FRAME_WIDTH}px"
-viewer_frame.style.height = f"{FRAME_HEIGHT}px"
-
 viewer_frame.style.overflow = "hidden"
 viewer_frame.style.boxSizing = "border-box"
 
@@ -116,7 +81,6 @@ class L2DNameSpace:
 
 window.L2DNameSpace = L2DNameSpace
 
-# Make Pixi app accessible from JavaScript
 L2DNameSpace.app = app
 
 
@@ -127,46 +91,12 @@ L2DNameSpace.app = app
 def update_canvas_position():
 
     # --------------------------------------------------------
-    # Le canvas reste de la taille du modèle.
-    #
-    # Le crop est obtenu en décalant le canvas derrière
-    # le cadre visible.
+    # Le canvas suit maintenant exactement la taille du cadre.
     # --------------------------------------------------------
-
-    crop_width = CROP_LEFT + CROP_RIGHT
-    crop_height = CROP_TOP + CROP_BOTTOM
-
-
-    visible_width = FRAME_WIDTH - crop_width
-    visible_height = FRAME_HEIGHT - crop_height
-
-
-    if visible_width <= 0:
-        visible_width = 1
-
-    if visible_height <= 0:
-        visible_height = 1
-
-
-    # --------------------------------------------------------
-    # Décalage permettant de conserver le contenu centré.
-    # --------------------------------------------------------
-
-    offset_x = (FRAME_WIDTH - MODEL_AREA_WIDTH) / 2
-
-    offset_y = (FRAME_HEIGHT - MODEL_AREA_HEIGHT) / 2
-
-
-    # Le crop est appliqué symétriquement autour du centre.
-
-    offset_x -= CROP_LEFT - CROP_RIGHT
-    offset_y -= CROP_TOP - CROP_BOTTOM
-
 
     canvas_div.style.position = "absolute"
-
-    canvas_div.style.left = f"{offset_x}px"
-    canvas_div.style.top = f"{offset_y}px"
+    canvas_div.style.left = "0px"
+    canvas_div.style.top = "0px"
 
 
 # Appliquer immédiatement le positionnement
@@ -270,18 +200,33 @@ def resize(model=None):
     # --------------------------------------------------------
     # IMPORTANT :
     #
-    # Le zoom du modèle reste exactement basé sur
-    # MODEL_AREA_WIDTH / MODEL_AREA_HEIGHT.
+    # On utilise maintenant la taille REELLE du canvas.
     #
-    # Le crop n'intervient absolument pas ici.
+    # Sur PC :
+    #   canvas = 917 x 788
+    #
+    # Sur téléphone :
+    #   canvas = taille adaptée par le CSS
+    #
+    # Le modèle est donc automatiquement réduit.
     # --------------------------------------------------------
 
-    canvas_width = MODEL_AREA_WIDTH
-    canvas_height = MODEL_AREA_HEIGHT
+    canvas_width = canvas_div.clientWidth
+    canvas_height = canvas_div.clientHeight
+
+
+    if canvas_width <= 0 or canvas_height <= 0:
+
+        return
 
 
     model_width = model.width
     model_height = model.height
+
+
+    if model_width <= 0 or model_height <= 0:
+
+        return
 
 
     scale_x = canvas_width / model_width
@@ -299,7 +244,7 @@ def resize(model=None):
 
 
     # --------------------------------------------------------
-    # Centrage du modèle dans la zone de référence
+    # Centrage du modèle dans le canvas
     # --------------------------------------------------------
 
     model.x = (canvas_width - scaled_width) / 2
@@ -307,7 +252,8 @@ def resize(model=None):
 
 
     logger.info(
-        f"Resize scale={scale} pos={model.x},{model.y}"
+        f"Resize canvas={canvas_width}x{canvas_height} "
+        f"scale={scale} pos={model.x},{model.y}"
     )
 
 
