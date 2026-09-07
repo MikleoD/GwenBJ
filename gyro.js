@@ -17,7 +17,7 @@ const POWER = 3;
 
 // vitesse oscillation
 
-const SPEED = 19;
+const SPEED = 12;
 
 
 // seuil secousse
