@@ -3,9 +3,8 @@ features.py
 
 Viewer Interactive additional features
 
-- blink
-- Pants
-
+- Auto blink
+- Swimsuit toggle
 """
 
 from browser import timer, window
@@ -19,23 +18,32 @@ import random
 DEBUG_MODE = True
 
 ENABLE_AUTO_BLINK = True
-ENABLE_PANTS_TOUCH = True
+ENABLE_SWIMSUIT_TOUCH = True
 
 
 BLINK_MIN_TIME = 3
 BLINK_MAX_TIME = 7
 
 
-# Zone pantalon relative au canvas
-# A ajuster si nécessaire
+# ============================================================
+# SWIMSUIT TOUCH ZONE
+# ============================================================
+#
+# Zone relative au canvas.
+#
+# x / y = position du coin supérieur gauche
+# width / height = taille de la zone
+#
+# On garde pour l'instant la même zone que celle utilisée
+# précédemment pour le pantalon de Lapis.
+#
 
-PANTS_ZONE = {
+SWIMSUIT_ZONE = {
     "x": 0.30,
     "y": 0.45,
     "width": 0.40,
     "height": 0.35
 }
-
 
 
 # ============================================================
@@ -51,13 +59,11 @@ except Exception:
     L2DNameSpace = None
 
 
-
 def debug(text):
 
     if DEBUG_MODE:
 
         print("[Features]", text)
-
 
 
 def get_model():
@@ -68,7 +74,6 @@ def get_model():
 
 
     return L2DNameSpace.current_model
-
 
 
 # ============================================================
@@ -103,7 +108,6 @@ def set_parameter(parameter_id, value):
         )
 
 
-
 # ============================================================
 # BLINK
 # ============================================================
@@ -113,12 +117,12 @@ def blink():
     debug("Blink")
 
 
-    # Param4
+    # BLINK
     # -30 = closed
     # 30 = open
 
     set_parameter(
-        "Param4",
+        "BLINK",
         -30
     )
 
@@ -129,14 +133,12 @@ def blink():
     )
 
 
-
 def open_eyes():
 
     set_parameter(
-        "Param4",
+        "BLINK",
         30
     )
-
 
 
 def schedule_blink():
@@ -161,87 +163,79 @@ def schedule_blink():
     )
 
 
-
 # ============================================================
-# PANTS
+# SWIMSUIT
 # ============================================================
 
-pants_visible = True
+swimsuit_visible = True
 
 
+def init_swimsuit():
 
-def init_pants():
-
-    global pants_visible
-
-
-    pants_visible = True
+    global swimsuit_visible
 
 
-    # Param7
-    # -30 = ON
-    # 30 = OFF
+    swimsuit_visible = True
+
+
+    # SWIMSUIT
+    # -30 = ON / visible
+    # 30 = OFF / invisible
 
     set_parameter(
-        "Param7",
+        "SWIMSUIT",
         -30
     )
 
 
-    debug("Pants ON")
+    debug("Swimsuit ON")
 
 
+def toggle_swimsuit():
 
-def toggle_pants():
-
-    global pants_visible
+    global swimsuit_visible
 
 
-    if pants_visible:
-
+    if swimsuit_visible:
 
         set_parameter(
-            "Param7",
+            "SWIMSUIT",
             30
         )
 
 
-        pants_visible = False
+        swimsuit_visible = False
 
-        debug("Pants OFF")
+        debug("Swimsuit OFF")
 
 
     else:
 
-
         set_parameter(
-            "Param7",
+            "SWIMSUIT",
             -30
         )
 
 
-        pants_visible = True
+        swimsuit_visible = True
 
-        debug("Pants ON")
-
+        debug("Swimsuit ON")
 
 
 # ============================================================
 # TOUCH ZONE
 # ============================================================
 
-def check_pants_touch(event):
+def check_swimsuit_touch(event):
 
-    if not ENABLE_PANTS_TOUCH:
+    if not ENABLE_SWIMSUIT_TOUCH:
 
         return
-
 
 
     canvas = window.document["live2d_canvas"]
 
     rect = canvas.getBoundingClientRect()
-
 
 
     # Pointer event fonctionne sur :
@@ -253,65 +247,60 @@ def check_pants_touch(event):
     y = event.clientY - rect.top
 
 
-
     nx = x / rect.width
     ny = y / rect.height
 
 
-
     if (
 
-        PANTS_ZONE["x"]
+        SWIMSUIT_ZONE["x"]
         <= nx
-        <= PANTS_ZONE["x"] + PANTS_ZONE["width"]
+        <= SWIMSUIT_ZONE["x"] + SWIMSUIT_ZONE["width"]
 
         and
 
-        PANTS_ZONE["y"]
+        SWIMSUIT_ZONE["y"]
         <= ny
-        <= PANTS_ZONE["y"] + PANTS_ZONE["height"]
+        <= SWIMSUIT_ZONE["y"] + SWIMSUIT_ZONE["height"]
 
     ):
 
+        debug("Swimsuit zone touched")
 
-        debug("Pants zone touched")
-
-
-        toggle_pants()
+        toggle_swimsuit()
 
 
+# ============================================================
+# ENABLE TOUCH
+# ============================================================
 
 def enable_touch():
 
-    if not ENABLE_PANTS_TOUCH:
+    if not ENABLE_SWIMSUIT_TOUCH:
 
         return
 
 
     try:
 
-
         canvas = window.document["live2d_canvas"]
 
 
         canvas.addEventListener(
             "pointerup",
-            check_pants_touch
+            check_swimsuit_touch
         )
 
 
-        debug("Pointer touch enabled")
-
+        debug("Swimsuit pointer touch enabled")
 
 
     except Exception as err:
-
 
         debug(
             "Touch error "
             + str(err)
         )
-
 
 
 # ============================================================
@@ -320,12 +309,10 @@ def enable_touch():
 
 def wait_for_model():
 
-
     model = get_model()
 
 
     if model is None:
-
 
         timer.set_timeout(
             wait_for_model,
@@ -336,28 +323,21 @@ def wait_for_model():
         return
 
 
-
     debug("Model detected")
 
 
-
-    init_pants()
-
+    init_swimsuit()
 
 
     if ENABLE_AUTO_BLINK:
 
-
         schedule_blink()
-
 
 
     enable_touch()
 
 
-
     debug("Features loaded")
-
 
 
 wait_for_model()
