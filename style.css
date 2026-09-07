@@ -34,6 +34,27 @@ body {
     box-sizing: border-box;
 }
 
+
+/*
+    ============================================================
+    ADAPTATION AUX PETITS ÉCRANS
+    ============================================================
+*/
+
+@media screen and (max-width: 917px) {
+
+    #viewer_frame {
+        width: 100vw;
+        height: calc(100vw * 788 / 917);
+    }
+
+    #live2d_canvas {
+        width: 100vw;
+        height: calc(100vw * 788 / 917);
+    }
+}
+
+
 /*
     ============================================================
     AUTRES ÉLÉMENTS
