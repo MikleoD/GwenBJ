@@ -54,6 +54,18 @@ body {
     }
 }
 
+@media screen and (max-width: 917px) and (orientation: landscape) {
+
+    #viewer_frame {
+        width: calc(100vh * 917 / 788);
+        height: 100vh;
+    }
+
+    #live2d_canvas {
+        width: calc(100vh * 917 / 788);
+        height: 100vh;
+    }
+}
 
 /*
     ============================================================
